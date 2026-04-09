@@ -13,6 +13,7 @@ class ViewController: UIViewController {
     //type! -> implicitly unwrapped optional(IOU)
     @IBOutlet weak var UNText: UITextField!
     @IBOutlet weak var PWText: UITextField!
+    @IBOutlet weak var loginButtonOutlet: UIButton!
     
     @IBAction func LoginButton(_ sender: Any)
     {
@@ -58,3 +59,58 @@ class ViewController: UIViewController {
 
 }
 
+extension ViewController: UITextFieldDelegate
+{
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool
+    {
+        switch textField
+        {
+        case UNText:
+            PWText.becomeFirstResponder( )
+        case PWText:
+            LoginButton(self)
+        default:
+            break
+        }
+        //print(#function, textField)
+        return false
+    }
+    
+    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool
+    {
+        if textField == UNText
+        {
+            let count = textField.text?.count ?? 0
+            let isValidUN = (6...12).contains(count)
+            textField.layer.borderWidth = isValidUN ? 0 : 2
+            textField.layer.borderColor = isValidUN ? nil : UIColor.red.cgColor
+            textField.layer.cornerRadius = isValidUN ? 0 : 5
+            textField.tintColor = isValidUN ? view.tintColor : .red
+            return isValidUN
+        }
+        return true
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool
+    {
+        var finalUN = UNText.text ?? ""
+        var finalPW = PWText.text ?? ""
+        
+        if textField == UNText
+        {
+            guard let range = Range(range, in: finalUN) else{ return true }
+            
+            finalUN = finalUN.replacingCharacters(in: range, with: string)
+        }
+        else if textField == PWText
+        {
+            guard let range = Range(range, in: finalPW) else{ return true }
+            
+            finalPW = finalPW.replacingCharacters(in: range, with: string)
+        }
+        
+        loginButtonOutlet.isEnabled = !finalPW.isEmpty && !finalUN.isEmpty
+        //print(#function, textField.text)
+        return true
+    }
+}
